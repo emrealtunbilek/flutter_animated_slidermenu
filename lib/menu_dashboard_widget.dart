@@ -8,9 +8,26 @@ class MenuDashboard extends StatefulWidget {
   _MenuDashboardState createState() => _MenuDashboardState();
 }
 
-class _MenuDashboardState extends State<MenuDashboard> {
+class _MenuDashboardState extends State<MenuDashboard>
+    with SingleTickerProviderStateMixin {
   double ekranYuksekligi, ekranGenisligi;
   bool menuAcikMi = false;
+  AnimationController _controller;
+  Animation<double> _scaleAnimation;
+  final Duration _duration = Duration(milliseconds: 300);
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: _duration);
+    _scaleAnimation = Tween(begin: 1.0, end: 0.6).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,45 +100,78 @@ class _MenuDashboardState extends State<MenuDashboard> {
 
   Widget dashBoardOlustur(BuildContext context) {
     return AnimatedPositioned(
-      duration: Duration(milliseconds: 500),
-      top: menuAcikMi ? 0.2 * ekranYuksekligi : 0,
-      bottom: menuAcikMi ? 0.2 * ekranYuksekligi : 0,
+      duration: _duration,
+      top: 0,
+      bottom: 0,
       left: menuAcikMi ? 0.4 * ekranGenisligi : 0,
       right: menuAcikMi ? -0.4 * ekranGenisligi : 0,
-      child: Material(
-        borderRadius: menuAcikMi ? BorderRadius.all(Radius.circular(40)) : null,
-        elevation: 8,
-        color: backgroundColur,
-        child: Container(
-          padding: EdgeInsets.only(left: 16, right: 16, top: 8),
-          child: Column(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        menuAcikMi = !menuAcikMi;
-                      });
-                    },
-                    child: Icon(
-                      Icons.menu,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Material(
+          borderRadius:
+              menuAcikMi ? BorderRadius.all(Radius.circular(40)) : null,
+          elevation: 8,
+          color: backgroundColur,
+          child: Container(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 8),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          if (menuAcikMi) {
+                            _controller.reverse();
+                          } else {
+                            _controller.forward();
+                          }
+                          menuAcikMi = !menuAcikMi;
+                        });
+                      },
+                      child: Icon(
+                        Icons.menu,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      "My Cards",
+                      style: TextStyle(color: Colors.white, fontSize: 24),
+                    ),
+                    Icon(
+                      Icons.add_circle_outline,
                       color: Colors.white,
                     ),
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 10),
+                  height: 200,
+                  child: PageView(
+                    scrollDirection: Axis.horizontal,
+                    children: <Widget>[
+                      Container(
+                        color: Colors.pink,
+                        width: 100,
+                        margin: EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                      Container(
+                        color: Colors.purple,
+                        width: 100,
+                        margin: EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                      Container(
+                        color: Colors.teal,
+                        width: 100,
+                        margin: EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "My Cards",
-                    style: TextStyle(color: Colors.white, fontSize: 24),
-                  ),
-                  Icon(
-                    Icons.add_circle_outline,
-                    color: Colors.white,
-                  ),
-                ],
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),
